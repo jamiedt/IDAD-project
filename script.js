@@ -33,11 +33,9 @@ function createCalendar() {
 
   const previousMonthDays = new Date(year, month, 0).getDate();
 
-  const monthName = currentDate.toLocaleString("default", {
-    month: "long",
-  });
+  const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  monthYear.textContent = `${monthName} ${year}`;
+  monthYear.textContent = `${monthName[month]} ${year}`;
 
   // Days from the previous month
   for (let i = firstDay - 1; i >= 0; i--) {
