@@ -33,7 +33,20 @@ function createCalendar() {
 
   const previousMonthDays = new Date(year, month, 0).getDate();
 
-  const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthName = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   monthYear.textContent = `${monthName[month]} ${year}`;
 

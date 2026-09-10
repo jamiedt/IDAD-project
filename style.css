@@ -83,6 +83,8 @@ img {
 .calendar-header h1 {
   font-size: 28px;
   color: #333;
+  width: 240px;
+  text-align: center;
 }
 
 .calendar-header button {
@@ -99,17 +101,16 @@ img {
 .time-buttons {
   gap: 10px;
   display: flex;
-  margin-left: auto;
 }
 
 .time-buttons button {
-  width: 5rem;
-  height: 2rem;
+  width: 80px;
+  height: 35px;
   border: none;
   border-radius: 10px;
-  background: #4f46e5;
+  background: #9a9a9a;
   color: white;
-  font-size: 1rem;
+  font-size: 15px;
   cursor: pointer;
   line-height: 0;
 }
