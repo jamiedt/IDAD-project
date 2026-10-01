@@ -15,15 +15,101 @@
       <button id="intro-dialog-close">close</button>
     </dialog>
 
+    <dialog id="event-dialog">
+      <form id="event-form">
+        <h2 id="event-dialog-title">Add event</h2>
+        <label>
+          Event name
+          <input
+            class="box-input"
+            id="event-name"
+            name="name"
+            type="text"
+            required
+          />
+        </label>
+        <label>
+          Date
+          <input
+            class="box-input"
+            id="event-date"
+            name="date"
+            type="date"
+            required
+          />
+        </label>
+        <label>
+          Time
+          <input
+            class="box-input"
+            id="event-time"
+            name="time"
+            type="time"
+            required
+          />
+        </label>
+        <div class="slider-field">
+          <label for="event-excitement">Excitement</label>
+          <input
+            class="slider"
+            id="event-excitement"
+            name="excitement"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+          />
+          <div class="slider-labels">
+            <span>Boring</span><output id="excitement-value">50</output
+            ><span>Exciting</span>
+          </div>
+        </div>
+        <div class="slider-field">
+          <label for="event-energy">Intensity</label>
+          <input
+            class="slider"
+            id="event-energy"
+            name="energy"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+          />
+          <div class="slider-labels">
+            <span>Calm</span><output id="energy-value">50</output
+            ><span>Intense</span>
+          </div>
+        </div>
+        <div class="slider-field">
+          <label for="event-social">Speed</label>
+          <input
+            class="slider"
+            id="event-social"
+            name="social"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+          />
+          <div class="slider-labels">
+            <span>Fast</span><output id="social-value">50</output
+            ><span>Slow</span>
+          </div>
+        </div>
+        <div class="event-actions">
+          <button id="event-delete" type="button" class="delete">Delete</button>
+          <div>
+            <button id="event-cancel" type="button">Cancel</button>
+            <button type="submit">Save event</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
     <div class="calendar">
       <div class="calendar-header">
         <button id="previous"><</button>
         <h1 id="month-year"></h1>
-        <!-- <div class="time-buttons">
-          <button id="day">Day</button>
-          <button id="week">Week</button>
-          <button id="month">Month</button>
-        </div> -->
         <button id="next">></button>
       </div>
       <div class="weekdays">

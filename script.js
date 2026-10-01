@@ -19,8 +19,83 @@ const daysContainer = document.getElementById("days");
 
 const previousButton = document.getElementById("previous");
 const nextButton = document.getElementById("next");
+const eventDialog = document.getElementById("event-dialog");
+const eventForm = document.getElementById("event-form");
+const eventDialogTitle = document.getElementById("event-dialog-title");
+const eventName = document.getElementById("event-name");
+const eventDate = document.getElementById("event-date");
+const eventTime = document.getElementById("event-time");
+const eventDelete = document.getElementById("event-delete");
+const sliders = {
+  excitement: document.getElementById("event-excitement"),
+  energy: document.getElementById("event-energy"),
+  social: document.getElementById("event-social"),
+};
+const sliderValues = {
+  excitement: document.getElementById("excitement-value"),
+  energy: document.getElementById("energy-value"),
+  social: document.getElementById("social-value"),
+};
 
 let currentDate = new Date();
+let editingEventId = null;
+let events = JSON.parse(localStorage.getItem("calendar-events") || "[]");
+
+function getDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatTime(time) {
+  if (!time) return "";
+  const [hours, minutes] = time.split(":");
+  const date = new Date();
+  date.setHours(Number(hours), Number(minutes));
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function saveEvents() {
+  localStorage.setItem("calendar-events", JSON.stringify(events));
+}
+
+function updateSliderValue(attribute) {
+  sliderValues[attribute].value = sliders[attribute].value;
+}
+
+function openEventEditor(dateKey, eventToEdit = null) {
+  editingEventId = eventToEdit ? eventToEdit.id : null;
+  eventDialogTitle.textContent = eventToEdit ? "Edit event" : "Add event";
+  eventName.value = eventToEdit?.name || "";
+  eventDate.value = eventToEdit?.date || dateKey;
+  eventTime.value = eventToEdit?.time || "12:00";
+
+  Object.keys(sliders).forEach((attribute) => {
+    sliders[attribute].value = eventToEdit?.[attribute] ?? 50;
+    updateSliderValue(attribute);
+  });
+
+  eventDelete.hidden = !eventToEdit;
+  eventDialog.showModal();
+}
+
+function renderEvents(day, dateKey) {
+  events
+    .filter((event) => event.date === dateKey)
+    .sort((first, second) => first.time.localeCompare(second.time))
+    .forEach((event) => {
+      const eventButton = document.createElement("button");
+      eventButton.type = "button";
+      eventButton.className = "calendar-event";
+      eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
+      eventButton.addEventListener("click", (clickEvent) => {
+        clickEvent.stopPropagation();
+        openEventEditor(dateKey, event);
+      });
+      day.appendChild(eventButton);
+    });
+}
 
 function createCalendar() {
   daysContainer.innerHTML = "";
@@ -56,6 +131,11 @@ function createCalendar() {
 
     day.textContent = previousMonthDays - i;
     day.classList.add("other-month");
+    const date = new Date(year, month - 1, previousMonthDays - i);
+    const dateKey = getDateKey(date);
+    day.dataset.date = dateKey;
+    day.addEventListener("click", () => openEventEditor(dateKey));
+    renderEvents(day, dateKey);
 
     daysContainer.appendChild(day);
   }
@@ -65,6 +145,9 @@ function createCalendar() {
     const day = document.createElement("div");
 
     day.textContent = i;
+    const date = new Date(year, month, i);
+    const dateKey = getDateKey(date);
+    day.dataset.date = dateKey;
 
     const today = new Date();
 
@@ -75,6 +158,9 @@ function createCalendar() {
     ) {
       day.classList.add("today");
     }
+
+    day.addEventListener("click", () => openEventEditor(dateKey));
+    renderEvents(day, dateKey);
 
     daysContainer.appendChild(day);
   }
@@ -89,6 +175,11 @@ function createCalendar() {
 
       day.textContent = i;
       day.classList.add("other-month");
+      const date = new Date(year, month + 1, i);
+      const dateKey = getDateKey(date);
+      day.dataset.date = dateKey;
+      day.addEventListener("click", () => openEventEditor(dateKey));
+      renderEvents(day, dateKey);
 
       daysContainer.appendChild(day);
     }
@@ -105,4 +196,49 @@ nextButton.addEventListener("click", () => {
   createCalendar();
 });
 
+Object.keys(sliders).forEach((attribute) => {
+  sliders[attribute].addEventListener("input", () =>
+    updateSliderValue(attribute),
+  );
+});
+
+eventForm.addEventListener("submit", (submitEvent) => {
+  submitEvent.preventDefault();
+  const formData = new FormData(eventForm);
+  const eventData = {
+    id: editingEventId || crypto.randomUUID(),
+    name: formData.get("name").trim(),
+    date: formData.get("date"),
+    time: formData.get("time"),
+    excitement: Number(formData.get("excitement")),
+    energy: Number(formData.get("energy")),
+    social: Number(formData.get("social")),
+  };
+
+  if (editingEventId) {
+    events = events.map((event) =>
+      event.id === editingEventId ? eventData : event,
+    );
+  } else {
+    events.push(eventData);
+  }
+
+  saveEvents();
+  eventDialog.close();
+  createCalendar();
+});
+
+eventDelete.addEventListener("click", () => {
+  events = events.filter((event) => event.id !== editingEventId);
+  saveEvents();
+  eventDialog.close();
+  createCalendar();
+});
+
+document.getElementById("event-cancel").addEventListener("click", () => {
+  eventDialog.close();
+});
+
 createCalendar();
+
+////// TONE //////
