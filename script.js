@@ -241,4 +241,19 @@ document.getElementById("event-cancel").addEventListener("click", () => {
 
 createCalendar();
 
+// slider colours
+
+function updateSlider(slider) {
+  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+
+  slider.style.setProperty("--value", `${value}%`);
+}
+
+Object.values(sliders).forEach((slider) => {
+  updateSlider(slider);
+
+  slider.addEventListener("input", () => {
+    updateSlider(slider);
+  });
+});
 ////// TONE //////
