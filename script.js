@@ -31,11 +31,6 @@ const sliders = {
   energy: document.getElementById("event-energy"),
   social: document.getElementById("event-social"),
 };
-const sliderValues = {
-  excitement: document.getElementById("excitement-value"),
-  energy: document.getElementById("energy-value"),
-  social: document.getElementById("social-value"),
-};
 
 let currentDate = new Date();
 let editingEventId = null;
@@ -60,10 +55,6 @@ function saveEvents() {
   localStorage.setItem("calendar-events", JSON.stringify(events));
 }
 
-function updateSliderValue(attribute) {
-  sliderValues[attribute].value = sliders[attribute].value;
-}
-
 function openEventEditor(dateKey, eventToEdit = null) {
   editingEventId = eventToEdit ? eventToEdit.id : null;
   eventDialogTitle.textContent = eventToEdit ? "Edit event" : "Add event";
@@ -73,7 +64,6 @@ function openEventEditor(dateKey, eventToEdit = null) {
 
   Object.keys(sliders).forEach((attribute) => {
     sliders[attribute].value = eventToEdit?.[attribute] ?? 50;
-    updateSliderValue(attribute);
   });
 
   eventDelete.hidden = !eventToEdit;
@@ -194,12 +184,6 @@ previousButton.addEventListener("click", () => {
 nextButton.addEventListener("click", () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   createCalendar();
-});
-
-Object.keys(sliders).forEach((attribute) => {
-  sliders[attribute].addEventListener("input", () =>
-    updateSliderValue(attribute),
-  );
 });
 
 eventForm.addEventListener("submit", (submitEvent) => {
