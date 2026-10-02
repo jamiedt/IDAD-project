@@ -277,8 +277,6 @@ createCalendar();
 
 ////// TONE //////
 
-////// TONE //////
-
 let synth;
 let toneStarted = false;
 
@@ -287,16 +285,8 @@ async function startTone() {
     await Tone.start();
 
     synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: {
-        type: "sine",
-      },
-
-      envelope: {
-        attack: 0.2,
-        decay: 0.2,
-        sustain: 0.7,
-        release: 0.5,
-      },
+      oscillator: { type: "sine" },
+      envelope: { attack: 0.2, decay: 0.2, sustain: 0.7, release: 0.5 },
     }).toDestination();
 
     toneStarted = true;
@@ -321,14 +311,8 @@ function excitementToNote(excitement) {
     "B4",
     "C5",
   ];
-
   const index = Math.round((excitement / 100) * (notes.length - 1));
-
   return notes[index];
-}
-
-function intensityToVolume(intensity) {
-  return -30 + (intensity / 100) * 24;
 }
 
 function speedToRelease(speed) {
@@ -346,29 +330,70 @@ function getEventDuration(event) {
   return Number.isFinite(minutes) ? minutes : 60;
 }
 
-// plays one event's note (same mapping as before), returns its length in seconds
-function playNote(event) {
-  const durationMinutes = getEventDuration(event);
-  const durationSeconds = Math.min(5, Math.max(0.5, durationMinutes * 0.02));
-
-  synth.volume.value = intensityToVolume(event.energy);
-  synth.set({
-    envelope: { release: Math.min(0.5, speedToRelease(event.social)) },
-  });
-  synth.triggerAttackRelease(
-    excitementToNote(event.excitement),
-    durationSeconds,
-  );
-
-  return durationSeconds;
-}
-
 ////// PLAY SCREEN //////
 
 const calendarEl = document.querySelector(".calendar");
 const playScreen = document.getElementById("play-screen");
 const padGrid = document.getElementById("pad-grid");
 const playBackButton = document.getElementById("play-back");
+const aura = document.getElementById("aura");
+
+const AURA_RADIUS = 90; // keep in sync with #aura size in the CSS (2x this)
+const orbs = [];
+const noteCounts = new Map();
+
+function orbSize(event) {
+  const minutes = getEventDuration(event);
+  return 28 + Math.min(1, minutes / 480) * 72;
+}
+
+function startOrb(orb) {
+  orb.active = true;
+  orb.el.classList.add("active");
+
+  const count = noteCounts.get(orb.note) || 0;
+  noteCounts.set(orb.note, count + 1);
+
+  if (count === 0) {
+    synth.set({ envelope: { release: speedToRelease(orb.event.social) } });
+    synth.triggerAttack(
+      orb.note,
+      Tone.now(),
+      0.15 + 0.85 * (orb.event.energy / 100),
+    );
+  }
+}
+
+function stopOrb(orb) {
+  orb.active = false;
+  orb.el.classList.remove("active");
+
+  const count = Math.max(0, (noteCounts.get(orb.note) || 1) - 1);
+  noteCounts.set(orb.note, count);
+
+  if (count === 0) synth.triggerRelease(orb.note);
+}
+
+function stopAll() {
+  orbs.forEach((orb) => {
+    if (orb.active) stopOrb(orb);
+  });
+}
+
+function updateAura(x, y) {
+  aura.hidden = false;
+  aura.style.transform = `translate(${x - AURA_RADIUS}px, ${y - AURA_RADIUS}px)`;
+
+  orbs.forEach((orb) => {
+    const rect = orb.el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const near = Math.hypot(x - cx, y - cy) < AURA_RADIUS + rect.width / 2;
+
+    if (near && !orb.active) startOrb(orb);
+    else if (!near && orb.active) stopOrb(orb);
+  });
+}
 
 async function openPlayScreen() {
   const year = currentDate.getFullYear();
@@ -377,7 +402,6 @@ async function openPlayScreen() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
 
-  // dates shown in the calendar grid, including spill-over days
   const cellKeys = [];
   for (let i = 0; i < totalCells; i++) {
     cellKeys.push(getDateKey(new Date(year, month, 1 - firstDay + i)));
@@ -393,6 +417,8 @@ async function openPlayScreen() {
   await startTone();
 
   padGrid.innerHTML = "";
+  orbs.length = 0;
+  noteCounts.clear();
 
   cellKeys.forEach((dateKey) => {
     const cell = document.createElement("div");
@@ -402,18 +428,18 @@ async function openPlayScreen() {
       .filter((e) => e.date === dateKey)
       .sort((a, b) => a.time.localeCompare(b.time))
       .forEach((event) => {
-        const pad = document.createElement("button");
-        pad.type = "button";
-        pad.className = "pad";
-        pad.setAttribute("aria-label", event.name);
+        const el = document.createElement("div");
+        el.className = "orb";
+        el.style.width = `${orbSize(event)}px`;
+        el.setAttribute("aria-label", event.name);
 
-        pad.addEventListener("pointerdown", () => {
-          const seconds = playNote(event);
-          pad.classList.add("active");
-          setTimeout(() => pad.classList.remove("active"), seconds * 1000);
+        orbs.push({
+          el,
+          event,
+          note: excitementToNote(event.excitement),
+          active: false,
         });
-
-        cell.appendChild(pad);
+        cell.appendChild(el);
       });
 
     padGrid.appendChild(cell);
@@ -424,10 +450,17 @@ async function openPlayScreen() {
 }
 
 function closePlayScreen() {
+  stopAll();
   if (synth) synth.releaseAll();
+  noteCounts.clear();
+  aura.hidden = true;
   playScreen.hidden = true;
   calendarEl.hidden = false;
 }
 
 playCalendarButton.addEventListener("click", openPlayScreen);
 playBackButton.addEventListener("click", closePlayScreen);
+playScreen.addEventListener("pointermove", (e) =>
+  updateAura(e.clientX, e.clientY),
+);
+playScreen.addEventListener("pointerleave", stopAll);

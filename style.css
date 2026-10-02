@@ -291,33 +291,52 @@ img {
   width: min(900px, calc(100% - 3rem));
 }
 
+#play-screen {
+  touch-action: none;
+  cursor: none;
+}
+
+#play-back {
+  cursor: pointer;
+}
+
 .pad-cell {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-start;
+  min-height: 110px;
 }
 
-.pad {
-  width: 100%;
+.orb {
   aspect-ratio: 1;
-  padding: 0;
-  border: none;
-  border-radius: 14px;
-  background: #ffffff;
+  max-width: 100%;
+  border-radius: 50%;
+  background: var(--col2);
   opacity: 0.25;
-  cursor: pointer;
   transition:
-    opacity 0.1s,
-    transform 0.1s;
+    opacity 0.15s,
+    transform 0.15s;
 }
 
-.pad:hover {
-  opacity: 0.4;
-}
-
-.pad.active {
+.orb.active {
   opacity: 1;
-  transform: scale(0.92);
+  transform: scale(1.05);
+}
+
+#aura {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 180px; /* 2 x AURA_RADIUS */
+  height: 180px;
+  border-radius: 50%;
+  border: 1px solid var(--col2);
+  background: radial-gradient(
+    circle,
+    rgba(125, 164, 255, 0.25),
+    transparent 70%
+  );
+  pointer-events: none;
 }
