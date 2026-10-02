@@ -248,3 +248,76 @@ img {
 .calendar-event span {
   opacity: 0.8;
 }
+
+#play-calendar {
+  width: 150px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #4f46e5;
+  color: #ffffff;
+}
+
+#play-calendar:hover {
+  background-color: #3730a3;
+}
+
+#play-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--col1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#play-screen[hidden] {
+  display: none;
+}
+
+#play-back {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+#pad-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1rem;
+  width: min(900px, calc(100% - 3rem));
+}
+
+.pad-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.pad {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff;
+  opacity: 0.25;
+  cursor: pointer;
+  transition:
+    opacity 0.1s,
+    transform 0.1s;
+}
+
+.pad:hover {
+  opacity: 0.4;
+}
+
+.pad.active {
+  opacity: 1;
+  transform: scale(0.92);
+}

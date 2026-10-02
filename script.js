@@ -336,71 +336,98 @@ function speedToRelease(speed) {
 }
 
 function getEventDuration(event) {
-  if (!event.time || !event.endTime) return 60; // fallback: 1 hour
+  if (!event.time || !event.endTime) return 60;
 
   const start = new Date(`${event.date}T${event.time}`);
-  let end = new Date(`${event.date}T${event.endTime}`);
-
-  // handle events that run past midnight
+  const end = new Date(`${event.date}T${event.endTime}`);
   if (end < start) end.setDate(end.getDate() + 1);
 
   const minutes = (end - start) / 60000;
   return Number.isFinite(minutes) ? minutes : 60;
 }
 
-async function playEvent(event) {
-  await startTone();
-
-  const note = excitementToNote(event.excitement);
-
+// plays one event's note (same mapping as before), returns its length in seconds
+function playNote(event) {
   const durationMinutes = getEventDuration(event);
-
-  // Convert the event duration into a short musical note
   const durationSeconds = Math.min(5, Math.max(0.5, durationMinutes * 0.02));
 
   synth.volume.value = intensityToVolume(event.energy);
-
   synth.set({
-    envelope: {
-      release: Math.min(0.5, speedToRelease(event.social)),
-    },
+    envelope: { release: Math.min(0.5, speedToRelease(event.social)) },
   });
+  synth.triggerAttackRelease(
+    excitementToNote(event.excitement),
+    durationSeconds,
+  );
 
-  synth.triggerAttackRelease(note, durationSeconds);
-
-  await new Promise((resolve) => {
-    setTimeout(resolve, durationSeconds * 1000);
-  });
+  return durationSeconds;
 }
 
-async function playCalendar() {
-  if (events.length === 0) {
-    alert("There are no events in your calendar yet.");
+////// PLAY SCREEN //////
 
+const calendarEl = document.querySelector(".calendar");
+const playScreen = document.getElementById("play-screen");
+const padGrid = document.getElementById("pad-grid");
+const playBackButton = document.getElementById("play-back");
+
+async function openPlayScreen() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  // dates shown in the calendar grid, including spill-over days
+  const cellKeys = [];
+  for (let i = 0; i < totalCells; i++) {
+    cellKeys.push(getDateKey(new Date(year, month, 1 - firstDay + i)));
+  }
+
+  const visibleEvents = events.filter((e) => cellKeys.includes(e.date));
+
+  if (visibleEvents.length === 0) {
+    alert("There are no events in this month yet.");
     return;
   }
 
   await startTone();
 
-  const sortedEvents = [...events].sort((a, b) => {
-    const dateA = new Date(`${a.date}T${a.time}`);
+  padGrid.innerHTML = "";
 
-    const dateB = new Date(`${b.date}T${b.time}`);
+  cellKeys.forEach((dateKey) => {
+    const cell = document.createElement("div");
+    cell.className = "pad-cell";
 
-    return dateA - dateB;
+    visibleEvents
+      .filter((e) => e.date === dateKey)
+      .sort((a, b) => a.time.localeCompare(b.time))
+      .forEach((event) => {
+        const pad = document.createElement("button");
+        pad.type = "button";
+        pad.className = "pad";
+        pad.setAttribute("aria-label", event.name);
+
+        pad.addEventListener("pointerdown", () => {
+          const seconds = playNote(event);
+          pad.classList.add("active");
+          setTimeout(() => pad.classList.remove("active"), seconds * 1000);
+        });
+
+        cell.appendChild(pad);
+      });
+
+    padGrid.appendChild(cell);
   });
 
-  playCalendarButton.disabled = true;
-
-  playCalendarButton.textContent = "Playing...";
-
-  for (const event of sortedEvents) {
-    await playEvent(event);
-  }
-
-  playCalendarButton.disabled = false;
-
-  playCalendarButton.textContent = "Play Calendar";
+  calendarEl.hidden = true;
+  playScreen.hidden = false;
 }
 
-playCalendarButton.addEventListener("click", playCalendar);
+function closePlayScreen() {
+  if (synth) synth.releaseAll();
+  playScreen.hidden = true;
+  calendarEl.hidden = false;
+}
+
+playCalendarButton.addEventListener("click", openPlayScreen);
+playBackButton.addEventListener("click", closePlayScreen);
