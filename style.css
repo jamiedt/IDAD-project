@@ -248,3 +248,18 @@ img {
 .calendar-event span {
   opacity: 0.8;
 }
+
+#play-calendar {
+  width: 150px;
+  height: 40px;
+  background: #4f46e5;
+  color: white;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#play-calendar:hover {
+  background: #3730a3;
+}
