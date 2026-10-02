@@ -336,10 +336,16 @@ function speedToRelease(speed) {
 }
 
 function getEventDuration(event) {
-  const start = new Date(`${event.date}T${event.time}`);
-  const end = new Date(`${event.date}T${event.endTime}`);
+  if (!event.time || !event.endTime) return 60; // fallback: 1 hour
 
-  return (end - start) / 60000;
+  const start = new Date(`${event.date}T${event.time}`);
+  let end = new Date(`${event.date}T${event.endTime}`);
+
+  // handle events that run past midnight
+  if (end < start) end.setDate(end.getDate() + 1);
+
+  const minutes = (end - start) / 60000;
+  return Number.isFinite(minutes) ? minutes : 60;
 }
 
 async function playEvent(event) {
@@ -350,7 +356,7 @@ async function playEvent(event) {
   const durationMinutes = getEventDuration(event);
 
   // Convert the event duration into a short musical note
-  const durationSeconds = Math.min(5, Math.max(0.5, durationMinutes * 0.05));
+  const durationSeconds = Math.min(5, Math.max(0.5, durationMinutes * 0.02));
 
   synth.volume.value = intensityToVolume(event.energy);
 
@@ -392,7 +398,6 @@ async function playCalendar() {
     await playEvent(event);
   }
 
-  synth.releaseAll();
   playCalendarButton.disabled = false;
 
   playCalendarButton.textContent = "Play Calendar";
