@@ -25,7 +25,10 @@ const eventDialogTitle = document.getElementById("event-dialog-title");
 const eventName = document.getElementById("event-name");
 const eventDate = document.getElementById("event-date");
 const eventTime = document.getElementById("event-time");
+const eventEndTime = document.getElementById("event-end-time");
 const eventDelete = document.getElementById("event-delete");
+const playCalendarButton = document.getElementById("play-calendar");
+
 const sliders = {
   excitement: document.getElementById("event-excitement"),
   energy: document.getElementById("event-energy"),
@@ -66,18 +69,25 @@ function updateSliderValue(attribute) {
 
 function openEventEditor(dateKey, eventToEdit = null) {
   editingEventId = eventToEdit ? eventToEdit.id : null;
+
   eventDialogTitle.textContent = eventToEdit ? "Edit event" : "Add event";
+
   eventName.value = eventToEdit?.name || "";
   eventDate.value = eventToEdit?.date || dateKey;
   eventTime.value = eventToEdit?.time || "12:00";
-
-  Object.keys(sliders).forEach((attribute) => {
-    sliders[attribute].value = eventToEdit?.[attribute] ?? 50;
-    updateSliderValue(attribute);
-  });
+  eventEndTime.value = eventToEdit?.endTime || "13:00";
 
   eventDelete.hidden = !eventToEdit;
+
   eventDialog.showModal();
+
+  sliders.excitement.value = eventToEdit?.excitement ?? 50;
+  sliders.energy.value = eventToEdit?.energy ?? 50;
+  sliders.social.value = eventToEdit?.social ?? 50;
+
+  updateSlider(sliders.excitement);
+  updateSlider(sliders.energy);
+  updateSlider(sliders.social);
 }
 
 function renderEvents(day, dateKey) {
@@ -202,6 +212,29 @@ Object.keys(sliders).forEach((attribute) => {
   );
 });
 
+function updateSlider(slider) {
+  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+
+  slider.style.setProperty("--value", `${value}%`);
+
+  const output = document.getElementById(
+    `${slider.id.replace("event-", "")}-value`,
+  );
+
+  if (output) {
+    output.value = slider.value;
+    output.textContent = slider.value;
+  }
+}
+
+Object.values(sliders).forEach((slider) => {
+  updateSlider(slider);
+
+  slider.addEventListener("input", () => {
+    updateSlider(slider);
+  });
+});
+
 eventForm.addEventListener("submit", (submitEvent) => {
   submitEvent.preventDefault();
   const formData = new FormData(eventForm);
@@ -210,6 +243,7 @@ eventForm.addEventListener("submit", (submitEvent) => {
     name: formData.get("name").trim(),
     date: formData.get("date"),
     time: formData.get("time"),
+    endTime: formData.get("endTime"),
     excitement: Number(formData.get("excitement")),
     energy: Number(formData.get("energy")),
     social: Number(formData.get("social")),
@@ -242,3 +276,126 @@ document.getElementById("event-cancel").addEventListener("click", () => {
 createCalendar();
 
 ////// TONE //////
+
+////// TONE //////
+
+let synth;
+let toneStarted = false;
+
+async function startTone() {
+  if (!toneStarted) {
+    await Tone.start();
+
+    synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: {
+        type: "sine",
+      },
+
+      envelope: {
+        attack: 0.2,
+        decay: 0.2,
+        sustain: 0.7,
+        release: 0.5,
+      },
+    }).toDestination();
+
+    toneStarted = true;
+  }
+}
+
+function excitementToNote(excitement) {
+  const notes = [
+    "C3",
+    "D3",
+    "E3",
+    "F3",
+    "G3",
+    "A3",
+    "B3",
+    "C4",
+    "D4",
+    "E4",
+    "F4",
+    "G4",
+    "A4",
+    "B4",
+    "C5",
+  ];
+
+  const index = Math.round((excitement / 100) * (notes.length - 1));
+
+  return notes[index];
+}
+
+function intensityToVolume(intensity) {
+  return -30 + (intensity / 100) * 24;
+}
+
+function speedToRelease(speed) {
+  return 0.2 + (speed / 100) * 1.5;
+}
+
+function getEventDuration(event) {
+  const start = new Date(`${event.date}T${event.time}`);
+  const end = new Date(`${event.date}T${event.endTime}`);
+
+  return (end - start) / 60000;
+}
+
+async function playEvent(event) {
+  await startTone();
+
+  const note = excitementToNote(event.excitement);
+
+  const durationMinutes = getEventDuration(event);
+
+  // Convert the event duration into a short musical note
+  const durationSeconds = Math.min(5, Math.max(0.5, durationMinutes * 0.05));
+
+  synth.volume.value = intensityToVolume(event.energy);
+
+  synth.set({
+    envelope: {
+      release: Math.min(0.5, speedToRelease(event.social)),
+    },
+  });
+
+  synth.triggerAttackRelease(note, durationSeconds);
+
+  await new Promise((resolve) => {
+    setTimeout(resolve, durationSeconds * 1000);
+  });
+}
+
+async function playCalendar() {
+  if (events.length === 0) {
+    alert("There are no events in your calendar yet.");
+
+    return;
+  }
+
+  await startTone();
+
+  const sortedEvents = [...events].sort((a, b) => {
+    const dateA = new Date(`${a.date}T${a.time}`);
+
+    const dateB = new Date(`${b.date}T${b.time}`);
+
+    return dateA - dateB;
+  });
+
+  playCalendarButton.disabled = true;
+
+  playCalendarButton.textContent = "Playing...";
+
+  for (const event of sortedEvents) {
+    await playEvent(event);
+  }
+
+  synth.releaseAll();
+  playCalendarButton.disabled = false;
+
+  playCalendarButton.textContent = "Play Calendar";
+}
+
+playCalendarButton.addEventListener("click", playCalendar);
