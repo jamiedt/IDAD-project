@@ -25,7 +25,6 @@ const eventDialogTitle = document.getElementById("event-dialog-title");
 const eventName = document.getElementById("event-name");
 const eventDate = document.getElementById("event-date");
 const eventTime = document.getElementById("event-time");
-const eventEndTime = document.getElementById("event-end-time");
 const eventDelete = document.getElementById("event-delete");
 const sliders = {
   excitement: document.getElementById("event-excitement"),
@@ -61,7 +60,9 @@ function saveEvents() {
   localStorage.setItem("calendar-events", JSON.stringify(events));
 }
 
-
+function updateSliderValue(attribute) {
+  sliderValues[attribute].value = sliders[attribute].value;
+}
 
 function openEventEditor(dateKey, eventToEdit = null) {
   editingEventId = eventToEdit ? eventToEdit.id : null;
@@ -70,6 +71,10 @@ function openEventEditor(dateKey, eventToEdit = null) {
   eventDate.value = eventToEdit?.date || dateKey;
   eventTime.value = eventToEdit?.time || "12:00";
 
+  Object.keys(sliders).forEach((attribute) => {
+    sliders[attribute].value = eventToEdit?.[attribute] ?? 50;
+    updateSliderValue(attribute);
+  });
 
   eventDelete.hidden = !eventToEdit;
   eventDialog.showModal();
@@ -191,6 +196,11 @@ nextButton.addEventListener("click", () => {
   createCalendar();
 });
 
+Object.keys(sliders).forEach((attribute) => {
+  sliders[attribute].addEventListener("input", () =>
+    updateSliderValue(attribute),
+  );
+});
 
 eventForm.addEventListener("submit", (submitEvent) => {
   submitEvent.preventDefault();
@@ -246,5 +256,4 @@ Object.values(sliders).forEach((slider) => {
     updateSlider(slider);
   });
 });
-
 ////// TONE //////
