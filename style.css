@@ -229,8 +229,8 @@ img {
   /* Left side color (accent), Right side color (#ddd), controlled by JS variable --value */
   background: linear-gradient(
     to right,
-    #00994a 0%,
-    #a1ffcf var(--value),
+    #383838 0%,
+    #a5a5a5 var(--value),
     #ffa7b5 var(--value),
     #ff163d 100%
   );
