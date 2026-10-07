@@ -34,11 +34,6 @@ const sliders = {
   energy: document.getElementById("event-energy"),
   social: document.getElementById("event-social"),
 };
-const sliderValues = {
-  excitement: document.getElementById("excitement-value"),
-  energy: document.getElementById("energy-value"),
-  social: document.getElementById("social-value"),
-};
 
 let currentDate = new Date();
 let editingEventId = null;
@@ -61,10 +56,6 @@ function formatTime(time) {
 
 function saveEvents() {
   localStorage.setItem("calendar-events", JSON.stringify(events));
-}
-
-function updateSliderValue(attribute) {
-  sliderValues[attribute].value = sliders[attribute].value;
 }
 
 function openEventEditor(dateKey, eventToEdit = null) {
@@ -275,6 +266,21 @@ document.getElementById("event-cancel").addEventListener("click", () => {
 
 createCalendar();
 
+// slider colours
+
+function updateSlider(slider) {
+  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+
+  slider.style.setProperty("--value", `${value}%`);
+}
+
+Object.values(sliders).forEach((slider) => {
+  updateSlider(slider);
+
+  slider.addEventListener("input", () => {
+    updateSlider(slider);
+  });
+});
 ////// TONE //////
 
 let synth;
