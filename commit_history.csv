@@ -1,0 +1,23 @@
+jamiedt,Fri Oct 2 13:47:16 2026 +1000,fixed another bug with the protoytpes to addd colour back,
+jamiedt,Fri Oct 2 13:38:04 2026 +1000,Revert "Update script.js",This reverts commit 05a6faea8e77bfb6f511ed56e8e29058ae57295e.
+
+jamiedt,Fri Oct 2 13:35:06 2026 +1000,Update script.js,
+jamiedt,Thu Oct 1 16:28:51 2026 +1000,changed colours and background of the even sliders,added gradients to the even tsliders to give more emoution and a better sense of feeling about them
+
+jamiedt,Thu Oct 1 15:39:09 2026 +1000,added a event creater with the help of ai,users can now create events in the calendar and can give times, dates, names and have slider options.
+
+jamiedt,Wed Sep 23 14:42:39 2026 +1000,commented out buttons,got rid of day weeek month buttons for now to limit scope
+
+jamiedt,Thu Sep 10 19:26:51 2026 +1000,fixed some styling,changed some styling decisions
+
+jamiedt,Wed Sep 9 15:59:37 2026 +1000,updated month names,
+jamiedt,Wed Sep 9 15:56:02 2026 +1000,Update style.css,
+jamiedt,Wed Sep 9 15:51:49 2026 +1000,fixed issue with merge,
+jamiedt,Wed Sep 9 15:50:32 2026 +1000,Merge branch 'main' of https://github.com/jamiedt/IDAD-project,
+jamiedt,Wed Sep 9 15:48:44 2026 +1000,added reset.css,added reset .css and experimenting with day week month buttons in calendar header
+
+jamiedt,Wed Sep 9 15:20:46 2026 +1000,created calendar,created simple calendar with the help of google ai as it gives me a good starting point to start iterating also added syntax and styling from the in class work we have been doing and copied it over with the dialogue etc.
+
+jamiedt,Wed Sep 9 15:20:46 2026 +1000,created calendar,created simple calendar with the help of google ai as it gives me a good starting point to start iterating
+
+jamiedt,Wed Sep 9 14:04:37 2026 +1000,Initial commit,
