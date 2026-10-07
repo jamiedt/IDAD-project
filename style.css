@@ -161,7 +161,7 @@ img {
   border: none;
   border-radius: 14px;
   padding: 0;
-  color: #ffffff;
+  color: var(--col2);
 }
 
 #event-dialog::backdrop {
@@ -216,7 +216,7 @@ img {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--col2);
   cursor: pointer;
 }
 
@@ -241,7 +241,7 @@ img {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--col2);
   cursor: pointer;
 }
 
@@ -266,20 +266,15 @@ img {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--col2);
   cursor: pointer;
 }
 
 .slider-labels {
   display: flex;
   justify-content: space-between;
-  color: #ffffff;
+  color: var(--col2);
   font-size: 0.75rem;
-}
-
-.slider-labels output {
-  color: #ffffff;
-  font-weight: bold;
 }
 
 .event-actions {
