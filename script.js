@@ -465,9 +465,17 @@ async function openPlayScreen() {
       .forEach((event) => {
         const el = document.createElement("div");
         el.className = "orb";
-        el.style.width = `${orbSize(event)}px`;
+        const size = orbSize(event);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
         el.style.background = eventGradient(event, 20);
-        el.textContent = event.name;
+        el.setAttribute("aria-label", event.name);
+        el.title = event.name;
+
+        const label = document.createElement("span");
+        label.className = "orb-label";
+        label.textContent = event.name;
+        el.appendChild(label);
 
         orbs.push({
           el,

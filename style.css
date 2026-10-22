@@ -413,13 +413,16 @@ img {
 
 .pad-cell {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 0;
+  padding: 8px; /* room for the overlap, so the first orb isn't pulled out of its cell */
+  min-width: 0;
   min-height: 110px;
   color: #ffffff;
   font-family: "Lexend", Arial, sans-serif;
 }
-
 .orb {
   aspect-ratio: 1;
   max-width: 100%;
@@ -441,11 +444,15 @@ img {
   text-shadow:
     0 0 4px #000,
     0 0 8px #000;
+  flex-shrink: 0; /* keeps the size from orbSize() instead of squashing */
+  margin: -8px; /* negative margin pulls neighbours together */
+  position: relative;
 }
 
 .orb.active {
   opacity: 1;
   transform: scale(1.05);
+  z-index: 1;
 }
 
 #aura {
