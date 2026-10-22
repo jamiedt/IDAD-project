@@ -35,6 +35,18 @@ const sliders = {
   social: document.getElementById("event-social"),
 };
 
+const sliderHues = {
+  "event-excitement": [220, 120],
+  "event-energy": [20, 60],
+  "event-social": [260, 359],
+};
+
+function sliderColour(sliderId, value) {
+  const [startHue, endHue] = sliderHues[sliderId];
+  const hue = startHue + (endHue - startHue) * (value / 100);
+  return `hsl(${hue}, 100%, 50%)`;
+}
+
 let currentDate = new Date();
 let editingEventId = null;
 let events = JSON.parse(localStorage.getItem("calendar-events") || "[]");
@@ -81,6 +93,17 @@ function openEventEditor(dateKey, eventToEdit = null) {
   updateSlider(sliders.social);
 }
 
+function eventGradient(event) {
+  const excitement = sliderColour("event-excitement", event.excitement);
+  const energy = sliderColour("event-energy", event.energy);
+  const social = sliderColour("event-social", event.social);
+
+  return `
+    radial-gradient(circle at center, #000 0%, #000 0%, transparent 80%),
+    conic-gradient(from 0deg at 50% 50%, ${excitement}, ${energy}, ${social}, ${excitement})
+  `;
+}
+
 function renderEvents(day, dateKey) {
   events
     .filter((event) => event.date === dateKey)
@@ -90,7 +113,7 @@ function renderEvents(day, dateKey) {
       eventButton.type = "button";
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
-      eventButton.style.background = `linear-gradient(150deg, rgb(${event.excitement * 2.55}, 0, 0), rgb(0, ${event.energy * 2.55}, 0), rgb(0, 0, ${event.social * 2.55}))`;
+      eventButton.style.background = eventGradient(event);
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
         openEventEditor(dateKey, event);
@@ -198,14 +221,6 @@ nextButton.addEventListener("click", () => {
   createCalendar();
 });
 
-Object.values(sliders).forEach((slider) => {
-  updateSlider(slider);
-
-  slider.addEventListener("input", () => {
-    updateSlider(slider);
-  });
-});
-
 eventForm.addEventListener("submit", (submitEvent) => {
   submitEvent.preventDefault();
   const formData = new FormData(eventForm);
@@ -249,24 +264,11 @@ createCalendar();
 // slider colours
 
 // each slider gets a hue range: [hue at 0, hue at 100]
-const sliderHues = {
-  "event-excitement": [220, 55], // blue -> yellow
-  "event-energy": [0, 350], // grey-ish -> red (see saturation below)
-  "event-social": [30, 280], // orange -> purple
-};
 
 function updateSlider(slider) {
-  const percent = (slider.value - slider.min) / (slider.max - slider.min);
-
-  const [startHue, endHue] = sliderHues[slider.id];
-  const hue = startHue + (endHue - startHue) * percent;
-
-  // energy slider: fade from grey to red by scaling saturation
-  const saturation = slider.id === "event-energy" ? 5 + percent * 90 : 75;
-
   slider.style.setProperty(
     "--slider-colour",
-    `hsl(${hue}, ${saturation}%, 50%)`,
+    sliderColour(slider.id, slider.value),
   );
 
   const output = document.getElementById(
@@ -442,8 +444,7 @@ async function openPlayScreen() {
         const el = document.createElement("div");
         el.className = "orb";
         el.style.width = `${orbSize(event)}px`;
-        el.style.background = `radial-gradient(circle, rgb(${event.excitement * 2.55}, 0, 0), rgb(0, ${event.energy * 2.55}, 0), rgb(0, 0, ${event.social * 2.55}))`;
-        el.setAttribute("aria-label", event.name);
+        el.style.background = eventGradient(event);
         el.textContent = event.name;
 
         orbs.push({
