@@ -379,7 +379,7 @@ const noteCounts = new Map();
 
 function orbSize(event) {
   const minutes = getEventDuration(event);
-  return 55 + Math.min(1, minutes / 240) * 85; // 55% to 140% of the cell width
+  return 55 + Math.min(1, minutes / 240) * 50; // 55% to 105%
 }
 
 function startOrb(orb) {
