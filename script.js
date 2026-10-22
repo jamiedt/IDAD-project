@@ -379,7 +379,7 @@ const noteCounts = new Map();
 
 function orbSize(event) {
   const minutes = getEventDuration(event);
-  return 28 + Math.min(1, minutes / 480) * 72;
+  return 55 + Math.min(1, minutes / 240) * 85; // 55% to 140% of the cell width
 }
 
 function startOrb(orb) {
@@ -452,6 +452,7 @@ async function openPlayScreen() {
   await startTone();
 
   padGrid.innerHTML = "";
+  padGrid.style.setProperty("--rows", totalCells / 7);
   orbs.length = 0;
   noteCounts.clear();
 
@@ -466,8 +467,7 @@ async function openPlayScreen() {
         const el = document.createElement("div");
         el.className = "orb";
         const size = orbSize(event);
-        el.style.width = `${size}px`;
-        el.style.height = `${size}px`;
+        el.style.width = `${orbSize(event)}cqmin`;
         el.style.background = eventGradient(event, 20);
         el.setAttribute("aria-label", event.name);
         el.title = event.name;

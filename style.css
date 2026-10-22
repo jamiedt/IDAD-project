@@ -382,71 +382,87 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  overflow: hidden;
 }
 
 #play-screen[hidden] {
   display: none;
 }
 
-#play-back {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-}
-
 #pad-grid {
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1rem;
-  width: min(900px, calc(100% - 3rem));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 6), minmax(0, 1fr));
+  gap: 0.5rem;
+  width: min(var(--calendar-w), calc(100% - 3rem));
+  height: 100vh;
+  height: 100dvh;
+  padding: 4rem 0 1.5rem; /* top space leaves room for the Back button */
 }
 
 #play-screen {
   touch-action: none;
   cursor: none;
 }
-
 #play-back {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 2;
   cursor: pointer;
 }
-
 .pad-cell {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-content: flex-start;
+  align-items: center; /* centres each orb vertically within its row */
+  align-content: center; /* centres the rows of orbs vertically in the cell (was flex-start) */
   gap: 0;
-  padding: 8px; /* room for the overlap, so the first orb isn't pulled out of its cell */
+  padding: 4px;
   min-width: 0;
-  min-height: 110px;
+  container-type: size;
   color: #ffffff;
   font-family: "Lexend", Arial, sans-serif;
 }
+
 .orb {
+  width: 60px; /* fallback, the inline width from JS overrides it */
+  height: auto;
   aspect-ratio: 1;
-  max-width: 100%;
-  border-radius: 50%;
-  background: var(--col2);
-  opacity: 0.25;
-  transition:
-    opacity 0.15s,
-    transform 0.15s;
+  flex-shrink: 0;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  margin: -8px;
+  padding: 6px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-size: 0.7rem;
   line-height: 1.1;
-  padding: 4px;
-  box-sizing: border-box;
-  word-break: break-word;
+  border-radius: 50%;
+  background: var(--col2);
+  opacity: 0.25;
   text-shadow:
     0 0 4px #000,
     0 0 8px #000;
-  flex-shrink: 0; /* keeps the size from orbSize() instead of squashing */
-  margin: -8px; /* negative margin pulls neighbours together */
-  position: relative;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+
+.orb-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .orb.active {
