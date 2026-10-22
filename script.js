@@ -93,14 +93,35 @@ function openEventEditor(dateKey, eventToEdit = null) {
   updateSlider(sliders.social);
 }
 
-function eventGradient(event) {
-  const excitement = sliderColour("event-excitement", event.excitement);
-  const energy = sliderColour("event-energy", event.energy);
-  const social = sliderColour("event-social", event.social);
+function eventGradient(event, blackSize = 55) {
+  const colours = [
+    sliderColour("event-excitement", event.excitement),
+    sliderColour("event-energy", event.energy),
+    sliderColour("event-social", event.social),
+  ];
+
+  const slice = 360 / colours.length; // 120deg each
+  const blend = 40; // degrees of gradient between colours (0 = hard edge)
+  const solid = slice - blend;
+
+  // each colour is solid for a while, then blends into the next
+  const stops = colours
+    .map((colour, i) => {
+      const start = i * slice;
+      return `${colour} ${start}deg, ${colour} ${start + solid}deg`;
+    })
+    .join(", ");
+
+  // closes the loop so the last colour blends back into the first
+  const loop = `${colours[0]} 360deg`;
+
+  // different rotation per event so they don't all look the same
+  const rotation =
+    (event.excitement * 3 + event.energy * 5 + event.social * 7) % 360;
 
   return `
-    radial-gradient(circle at center, #000 0%, #000 0%, transparent 80%),
-    conic-gradient(from 0deg at 50% 50%, ${excitement}, ${energy}, ${social}, ${excitement})
+    radial-gradient(ellipse closest-side at center, #000 ${blackSize + 10}%, transparent ${blackSize + 45}%),
+    conic-gradient(from ${rotation}deg at 50% 50%, ${stops}, ${loop})
   `;
 }
 
@@ -444,7 +465,7 @@ async function openPlayScreen() {
         const el = document.createElement("div");
         el.className = "orb";
         el.style.width = `${orbSize(event)}px`;
-        el.style.background = eventGradient(event);
+        el.style.background = eventGradient(event, 20);
         el.textContent = event.name;
 
         orbs.push({

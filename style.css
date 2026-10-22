@@ -324,10 +324,8 @@ img {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  align-items: center;
-  justify-content: flex-start;
   min-height: 110px;
-  color: #000000;
+  color: #ffffff;
   font-family: "Lexend", Arial, sans-serif;
 }
 
@@ -340,6 +338,18 @@ img {
   transition:
     opacity 0.15s,
     transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.7rem;
+  line-height: 1.1;
+  padding: 4px;
+  box-sizing: border-box;
+  word-break: break-word;
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px #000;
 }
 
 .orb.active {
