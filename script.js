@@ -90,7 +90,7 @@ function renderEvents(day, dateKey) {
       eventButton.type = "button";
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
-      eventButton.style.color = "red";
+      eventButton.style.background = `linear-gradient(150deg, rgb(${event.excitement * 2.55}, 0, 0), rgb(0, ${event.energy * 2.55}, 0), rgb(0, 0, ${event.social * 2.55}))`;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
         openEventEditor(dateKey, event);
@@ -198,27 +198,6 @@ nextButton.addEventListener("click", () => {
   createCalendar();
 });
 
-Object.keys(sliders).forEach((attribute) => {
-  sliders[attribute].addEventListener("input", () =>
-    updateSliderValue(attribute),
-  );
-});
-
-function updateSlider(slider) {
-  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-
-  slider.style.setProperty("--value", `${value}%`);
-
-  const output = document.getElementById(
-    `${slider.id.replace("event-", "")}-value`,
-  );
-
-  if (output) {
-    output.value = slider.value;
-    output.textContent = slider.value;
-  }
-}
-
 Object.values(sliders).forEach((slider) => {
   updateSlider(slider);
 
@@ -269,10 +248,35 @@ createCalendar();
 
 // slider colours
 
-function updateSlider(slider) {
-  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+// each slider gets a hue range: [hue at 0, hue at 100]
+const sliderHues = {
+  "event-excitement": [220, 55], // blue -> yellow
+  "event-energy": [0, 350], // grey-ish -> red (see saturation below)
+  "event-social": [30, 280], // orange -> purple
+};
 
-  slider.style.setProperty("--value", `${value}%`);
+function updateSlider(slider) {
+  const percent = (slider.value - slider.min) / (slider.max - slider.min);
+
+  const [startHue, endHue] = sliderHues[slider.id];
+  const hue = startHue + (endHue - startHue) * percent;
+
+  // energy slider: fade from grey to red by scaling saturation
+  const saturation = slider.id === "event-energy" ? 5 + percent * 90 : 75;
+
+  slider.style.setProperty(
+    "--slider-colour",
+    `hsl(${hue}, ${saturation}%, 50%)`,
+  );
+
+  const output = document.getElementById(
+    `${slider.id.replace("event-", "")}-value`,
+  );
+
+  if (output) {
+    output.value = slider.value;
+    output.textContent = slider.value;
+  }
 }
 
 Object.values(sliders).forEach((slider) => {
@@ -438,6 +442,7 @@ async function openPlayScreen() {
         const el = document.createElement("div");
         el.className = "orb";
         el.style.width = `${orbSize(event)}px`;
+        el.style.background = `radial-gradient(circle, rgb(${event.excitement * 2.55}, 0, 0), rgb(0, ${event.energy * 2.55}, 0), rgb(0, 0, ${event.social * 2.55}))`;
         el.setAttribute("aria-label", event.name);
         el.textContent = event.name;
 
