@@ -90,6 +90,7 @@ function renderEvents(day, dateKey) {
       eventButton.type = "button";
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
+      eventButton.style.color = "red";
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
         openEventEditor(dateKey, event);
@@ -438,6 +439,7 @@ async function openPlayScreen() {
         el.className = "orb";
         el.style.width = `${orbSize(event)}px`;
         el.setAttribute("aria-label", event.name);
+        el.textContent = event.name;
 
         orbs.push({
           el,
