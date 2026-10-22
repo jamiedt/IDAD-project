@@ -135,6 +135,7 @@ function renderEvents(day, dateKey) {
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
       eventButton.style.background = eventGradient(event);
+      eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
         openEventEditor(dateKey, event);

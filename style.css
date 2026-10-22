@@ -13,6 +13,47 @@
   }
 }
 
+:root {
+  --calendar-w: calc(100vw - 2rem);
+  --calendar-h: calc(100vh - 2rem);
+  --calendar-pad: 12px;
+  --day-font: 0.8rem;
+  --event-font: 0.65rem;
+}
+
+/* Expanded: 840px - 1199px */
+@media (min-width: 840px) {
+  :root {
+    --calendar-w: 780px;
+    --calendar-h: min(680px, calc(100vh - 2rem));
+    --calendar-pad: 20px;
+    --day-font: 0.9rem;
+    --event-font: 0.72rem;
+  }
+}
+
+/* Large: 1200px - 1600px */
+@media (min-width: 1200px) {
+  :root {
+    --calendar-w: 1000px;
+    --calendar-h: min(760px, calc(100vh - 2rem));
+    --calendar-pad: 25px;
+    --day-font: 1rem;
+    --event-font: 0.8rem;
+  }
+}
+
+/* Extra-large: over 1600px */
+@media (min-width: 1601px) {
+  :root {
+    --calendar-w: 1300px;
+    --calendar-h: min(900px, calc(100vh - 2rem));
+    --calendar-pad: 30px;
+    --day-font: 1.1rem;
+    --event-font: 0.9rem;
+  }
+}
+
 body {
   background-color: var(--col1);
   color: var(--col2);
@@ -64,29 +105,6 @@ img {
   position: relative;
 }
 
-.calendar {
-  width: 700px;
-  height: 640px;
-  background: white;
-  border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 25px;
-}
-
-.calendar-header h1 {
-  font-size: 28px;
-  color: #333;
-  width: 240px;
-  text-align: center;
-}
-
 .calendar-header button {
   width: 45px;
   height: 45px;
@@ -118,26 +136,87 @@ img {
   background: #3730a3;
 }
 
+.calendar {
+  box-sizing: border-box;
+  width: var(--calendar-w);
+  height: var(--calendar-h);
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 15px;
+  padding: var(--calendar-pad);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* needed, because display:flex above would otherwise override the hidden attribute */
+.calendar[hidden] {
+  display: none;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.calendar-header h1 {
+  flex: 1;
+  margin: 0;
+  font-size: clamp(1.1rem, 2.5vw, 1.75rem);
+  color: #333;
+  text-align: center;
+}
+
+.calendar-header button {
+  flex-shrink: 0;
+}
+
 .weekdays,
 .days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(
+    7,
+    minmax(0, 1fr)
+  ); /* minmax(0) stops long names stretching columns */
+  gap: 4px;
+}
+
+.weekdays {
+  flex-shrink: 0;
 }
 
 .weekdays div {
   text-align: center;
   font-weight: bold;
   color: #666;
-  padding: 12px 0;
+  padding: 8px 0;
+  font-size: var(--day-font);
+}
+
+.days {
+  flex: 1;
+  min-height: 0;
+  grid-auto-rows: minmax(
+    0,
+    1fr
+  ); /* every row gets an equal share of the space */
 }
 
 .days div {
-  min-height: 80px;
-  border: 1px solid #eee;
-  padding: 10px;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 6px;
+  font-size: var(--day-font);
   color: #333;
+  border: 1px solid #eee;
   border-radius: 10px;
   cursor: pointer;
+  overflow-x: hidden;
+  overflow-y: auto; /* scrolls when there are too many events */
+  scrollbar-width: thin;
 }
 
 .days div:hover {
@@ -162,6 +241,8 @@ img {
   border-radius: 14px;
   padding: 0;
   color: var(--col2);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }
 
 #event-dialog::backdrop {
@@ -252,21 +333,31 @@ img {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  box-sizing: border-box;
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.4rem;
-  background: #e8e9ff;
+  min-width: 0;
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.4rem;
+  font-size: var(--event-font);
   color: #ffffff;
-  font-size: 0.75rem;
   text-align: left;
+  overflow: hidden;
 }
 
-.calendar-event:hover {
-  background: #d4d6ff;
+.calendar-event strong,
+.calendar-event span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .calendar-event span {
   opacity: 0.8;
+}
+
+.calendar-event:hover {
+  background: #d4d6ff;
 }
 
 #play-calendar {
@@ -371,4 +462,22 @@ img {
     transparent 70%
   );
   pointer-events: none;
+}
+
+/* accessibility */
+
+button:focus-visible,
+.slider:focus-visible,
+.box-input:focus-visible {
+  outline: 3px solid #ffb800;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
