@@ -93,36 +93,25 @@ function openEventEditor(dateKey, eventToEdit = null) {
   updateSlider(sliders.social);
 }
 
-function eventGradient(event, blackSize = 55) {
-  const colours = [
-    sliderColour("event-excitement", event.excitement),
-    sliderColour("event-energy", event.energy),
-    sliderColour("event-social", event.social),
+// builds three concentric solid rings; thickness grows with each slider's value
+function eventRings(event, unit, minThickness, maxThickness) {
+  const rings = [
+    {
+      colour: sliderColour("event-excitement", event.excitement),
+      value: event.excitement,
+    },
+    { colour: sliderColour("event-energy", event.energy), value: event.energy },
+    { colour: sliderColour("event-social", event.social), value: event.social },
   ];
 
-  const slice = 360 / colours.length; // 120deg each
-  const blend = 40; // degrees of gradient between colours (0 = hard edge)
-  const solid = slice - blend;
-
-  // each colour is solid for a while, then blends into the next
-  const stops = colours
-    .map((colour, i) => {
-      const start = i * slice;
-      return `${colour} ${start}deg, ${colour} ${start + solid}deg`;
+  let depth = 0;
+  return rings
+    .map((ring) => {
+      depth +=
+        minThickness + (ring.value / 100) * (maxThickness - minThickness);
+      return `inset 0 0 0 ${depth}${unit} ${ring.colour}`;
     })
     .join(", ");
-
-  // closes the loop so the last colour blends back into the first
-  const loop = `${colours[0]} 360deg`;
-
-  // different rotation per event so they don't all look the same
-  const rotation =
-    (event.excitement * 3 + event.energy * 5 + event.social * 7) % 360;
-
-  return `
-    radial-gradient(ellipse closest-side at center, #000 ${blackSize + 10}%, transparent ${blackSize + 45}%),
-    conic-gradient(from ${rotation}deg at 50% 50%, ${stops}, ${loop})
-  `;
 }
 
 function renderEvents(day, dateKey) {
@@ -134,7 +123,8 @@ function renderEvents(day, dateKey) {
       eventButton.type = "button";
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
-      eventButton.style.background = eventGradient(event);
+      eventButton.style.background = "#000";
+      eventButton.style.boxShadow = eventRings(event, "px", 1, 3.5);
       eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
@@ -468,7 +458,8 @@ async function openPlayScreen() {
         el.className = "orb";
         const size = orbSize(event);
         el.style.width = `${orbSize(event)}cqmin`;
-        el.style.background = eventGradient(event, 20);
+        el.style.background = "#000";
+        el.style.boxShadow = eventRings(event, "cqmin", 1, 4);
         el.setAttribute("aria-label", event.name);
         el.title = event.name;
 
