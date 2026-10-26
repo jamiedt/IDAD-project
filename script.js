@@ -301,20 +301,46 @@ Object.values(sliders).forEach((slider) => {
 });
 ////// TONE //////
 
-let synth;
 let toneStarted = false;
 
 async function startTone() {
   if (!toneStarted) {
     await Tone.start();
-
-    synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "sine" },
-      envelope: { attack: 0.2, decay: 0.2, sustain: 0.7, release: 0.5 },
-    }).toDestination();
-
     toneStarted = true;
   }
+}
+
+// one voice per orb, built from that event's sliders
+function createVoice(event) {
+  const slow = 1 - event.social / 100; // 1 = slow, 0 = fast
+
+  // Business (0) = bright, 5000Hz cutoff. Leisure (100) = mellow, 500Hz cutoff
+  const cutoff = 5000 * Math.pow(0.1, event.energy / 100);
+
+  const filter = new Tone.Filter(cutoff, "lowpass").toDestination();
+
+  const synth = new Tone.Synth({
+    oscillator: { type: "sawtooth" },
+    envelope: {
+      attack: 0.02 + slow * 1.0, // fast = 0.02s, slow = about 1s
+      decay: 0.2,
+      sustain: 0.7,
+      release: 0.15 + slow * 1.5, // fast = 0.15s, slow = about 1.65s
+    },
+    volume: -14,
+  }).connect(filter);
+
+  return { synth, filter };
+}
+
+function disposeVoices() {
+  orbs.forEach((orb) => {
+    if (orb.voice) {
+      orb.voice.synth.dispose();
+      orb.voice.filter.dispose();
+    }
+  });
+  orbs.length = 0;
 }
 
 function excitementToNote(excitement) {
@@ -339,10 +365,6 @@ function excitementToNote(excitement) {
   return notes[index];
 }
 
-function speedToRelease(speed) {
-  return 0.2 + (speed / 100) * 1.5;
-}
-
 function getEventDuration(event) {
   if (!event.time || !event.endTime) return 60;
 
@@ -364,7 +386,6 @@ const aura = document.getElementById("aura");
 
 const AURA_RADIUS = 90; // keep in sync with #aura size in the CSS (2x this)
 const orbs = [];
-const noteCounts = new Map();
 
 function orbSize(event) {
   const minutes = getEventDuration(event);
@@ -375,27 +396,15 @@ function startOrb(orb) {
   orb.active = true;
   orb.el.classList.add("active");
 
-  const count = noteCounts.get(orb.note) || 0;
-  noteCounts.set(orb.note, count + 1);
-
-  if (count === 0) {
-    synth.set({ envelope: { release: speedToRelease(orb.event.social) } });
-    synth.triggerAttack(
-      orb.note,
-      Tone.now(),
-      0.15 + 0.85 * (orb.event.energy / 100),
-    );
-  }
+  if (!orb.voice) orb.voice = createVoice(orb.event);
+  orb.voice.synth.triggerAttack(orb.note, Tone.now());
 }
 
 function stopOrb(orb) {
   orb.active = false;
   orb.el.classList.remove("active");
 
-  const count = Math.max(0, (noteCounts.get(orb.note) || 1) - 1);
-  noteCounts.set(orb.note, count);
-
-  if (count === 0) synth.triggerRelease(orb.note);
+  if (orb.voice) orb.voice.synth.triggerRelease(Tone.now());
 }
 
 function stopAll() {
@@ -442,8 +451,7 @@ async function openPlayScreen() {
 
   padGrid.innerHTML = "";
   padGrid.style.setProperty("--rows", totalCells / 7);
-  orbs.length = 0;
-  noteCounts.clear();
+  disposeVoices();
 
   cellKeys.forEach((dateKey) => {
     const cell = document.createElement("div");
@@ -485,8 +493,6 @@ async function openPlayScreen() {
 
 function closePlayScreen() {
   stopAll();
-  if (synth) synth.releaseAll();
-  noteCounts.clear();
   aura.hidden = true;
   playScreen.hidden = true;
   calendarEl.hidden = false;
