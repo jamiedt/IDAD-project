@@ -500,6 +500,7 @@ function closePlayScreen() {
   aura.hidden = true;
   playScreen.hidden = true;
   calendarEl.hidden = false;
+  playScreen.classList.remove("near-back");
 }
 
 playCalendarButton.addEventListener("click", openPlayScreen);

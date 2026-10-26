@@ -405,6 +405,11 @@ img {
   touch-action: none;
   cursor: none;
 }
+
+#play-screen.near-back {
+  cursor: default;
+}
+
 #play-back {
   position: fixed;
   top: 1.5rem;
@@ -442,7 +447,7 @@ img {
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   line-height: 1.1;
   border-radius: 50%;
   background: var(--col2);
