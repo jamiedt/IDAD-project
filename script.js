@@ -38,7 +38,7 @@ const sliders = {
 // [hue at 0, hue at 100]; the middle (50) is always neutral grey
 const sliderHues = {
   "event-excitement": [220, 50], // Boring = blue, Exciting = yellow
-  "event-energy": [170, 330], // Business = teal, Leisure = pink
+  "event-energy": [120, 300], // Business = teal, Leisure = pink
   "event-social": [270, 15], // Slow = purple, Fast = orange
 };
 
@@ -146,7 +146,7 @@ function renderEvents(day, dateKey) {
       eventButton.type = "button";
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
-      eventButton.style.background = "#000";
+      eventButton.style.background = "#1c1e5c";
       eventButton.style.boxShadow = eventStripes(event, stripeMax());
       eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
@@ -489,7 +489,7 @@ async function openPlayScreen() {
         el.className = "orb";
         const size = orbSize(event);
         el.style.width = `${orbSize(event)}cqmin`;
-        el.style.background = "#000";
+        el.style.background = "#1c1e5c";
         el.style.boxShadow = eventRings(
           event,
           "cqmin",
