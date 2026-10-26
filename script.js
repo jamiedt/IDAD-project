@@ -113,6 +113,23 @@ function eventRings(event, unit, maxThickness, outside = false) {
     .join(", ");
 }
 
+// three vertical stripes on the right edge; thickness grows with distance from the middle (50)
+function eventStripes(event, maxThickness) {
+  const stripes = [
+    { id: "event-excitement", value: event.excitement },
+    { id: "event-energy", value: event.energy },
+    { id: "event-social", value: event.social },
+  ];
+
+  let depth = 0;
+  return stripes
+    .map((stripe) => {
+      depth += (Math.abs(stripe.value - 50) / 50) * maxThickness;
+      return `inset -${depth}px 0 0 0 ${sliderColour(stripe.id, stripe.value)}`;
+    })
+    .join(", ");
+}
+
 function renderEvents(day, dateKey) {
   events
     .filter((event) => event.date === dateKey)
@@ -123,7 +140,7 @@ function renderEvents(day, dateKey) {
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
       eventButton.style.background = "#000";
-      eventButton.style.boxShadow = eventRings(event, "px", 3.5);
+      eventButton.style.boxShadow = eventStripes(event, 4);
       eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
