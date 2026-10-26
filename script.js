@@ -130,6 +130,13 @@ function eventStripes(event, maxThickness) {
     .join(", ");
 }
 
+function stripeMax() {
+  const value = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--stripe-max"),
+  );
+  return Number.isFinite(value) ? value : 4;
+}
+
 function renderEvents(day, dateKey) {
   events
     .filter((event) => event.date === dateKey)
@@ -140,7 +147,7 @@ function renderEvents(day, dateKey) {
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
       eventButton.style.background = "#000";
-      eventButton.style.boxShadow = eventStripes(event, 4);
+      eventButton.style.boxShadow = eventStripes(event, stripeMax());
       eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
@@ -545,3 +552,12 @@ playScreen.addEventListener("pointermove", (e) => {
   }
 });
 playScreen.addEventListener("pointerleave", stopAll);
+
+let lastStripeMax = stripeMax();
+window.addEventListener("resize", () => {
+  const current = stripeMax();
+  if (current !== lastStripeMax) {
+    lastStripeMax = current;
+    createCalendar();
+  }
+});
