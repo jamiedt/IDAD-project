@@ -35,16 +35,18 @@ const sliders = {
   social: document.getElementById("event-social"),
 };
 
+// [hue at 0, hue at 100]; the middle (50) is always neutral grey
 const sliderHues = {
-  "event-excitement": [220, 120],
-  "event-energy": [20, 60],
-  "event-social": [260, 359],
+  "event-excitement": [220, 50], // Boring = blue, Exciting = yellow
+  "event-energy": [170, 330], // Business = teal, Leisure = pink
+  "event-social": [270, 15], // Slow = purple, Fast = orange
 };
 
 function sliderColour(sliderId, value) {
-  const [startHue, endHue] = sliderHues[sliderId];
-  const hue = startHue + (endHue - startHue) * (value / 100);
-  return `hsl(${hue}, 100%, 50%)`;
+  const [lowHue, highHue] = sliderHues[sliderId];
+  const distance = Math.abs(value - 50) / 50; // 0 in the middle, 1 at either end
+  const hue = value < 50 ? lowHue : highHue;
+  return `hsl(${hue}, ${distance * 100}%, 50%)`;
 }
 
 let currentDate = new Date();
@@ -94,22 +96,19 @@ function openEventEditor(dateKey, eventToEdit = null) {
 }
 
 // builds three concentric solid rings; thickness grows with each slider's value
-function eventRings(event, unit, minThickness, maxThickness) {
+// three concentric solid rings; thickness grows with distance from the middle (50)
+function eventRings(event, unit, maxThickness) {
   const rings = [
-    {
-      colour: sliderColour("event-excitement", event.excitement),
-      value: event.excitement,
-    },
-    { colour: sliderColour("event-energy", event.energy), value: event.energy },
-    { colour: sliderColour("event-social", event.social), value: event.social },
+    { id: "event-excitement", value: event.excitement },
+    { id: "event-energy", value: event.energy },
+    { id: "event-social", value: event.social },
   ];
 
   let depth = 0;
   return rings
     .map((ring) => {
-      depth +=
-        minThickness + (ring.value / 100) * (maxThickness - minThickness);
-      return `inset 0 0 0 ${depth}${unit} ${ring.colour}`;
+      depth += (Math.abs(ring.value - 50) / 50) * maxThickness;
+      return `inset 0 0 0 ${depth}${unit} ${sliderColour(ring.id, ring.value)}`;
     })
     .join(", ");
 }
@@ -124,7 +123,7 @@ function renderEvents(day, dateKey) {
       eventButton.className = "calendar-event";
       eventButton.innerHTML = `<strong>${event.name}</strong><span>${formatTime(event.time)}</span>`;
       eventButton.style.background = "#000";
-      eventButton.style.boxShadow = eventRings(event, "px", 1, 3.5);
+      eventButton.style.boxShadow = eventRings(event, "px", 3.5);
       eventButton.title = event.name;
       eventButton.addEventListener("click", (clickEvent) => {
         clickEvent.stopPropagation();
@@ -459,7 +458,7 @@ async function openPlayScreen() {
         const size = orbSize(event);
         el.style.width = `${orbSize(event)}cqmin`;
         el.style.background = "#000";
-        el.style.boxShadow = eventRings(event, "cqmin", 1, 4);
+        el.style.boxShadow = eventRings(event, "cqmin", orbSize(event) * 0.1);
         el.setAttribute("aria-label", event.name);
         el.title = event.name;
 
