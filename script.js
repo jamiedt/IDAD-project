@@ -97,7 +97,7 @@ function openEventEditor(dateKey, eventToEdit = null) {
 
 // builds three concentric solid rings; thickness grows with each slider's value
 // three concentric solid rings; thickness grows with distance from the middle (50)
-function eventRings(event, unit, maxThickness) {
+function eventRings(event, unit, maxThickness, outside = false) {
   const rings = [
     { id: "event-excitement", value: event.excitement },
     { id: "event-energy", value: event.energy },
@@ -108,7 +108,7 @@ function eventRings(event, unit, maxThickness) {
   return rings
     .map((ring) => {
       depth += (Math.abs(ring.value - 50) / 50) * maxThickness;
-      return `inset 0 0 0 ${depth}${unit} ${sliderColour(ring.id, ring.value)}`;
+      return `${outside ? "" : "inset "}0 0 0 ${depth}${unit} ${sliderColour(ring.id, ring.value)}`;
     })
     .join(", ");
 }
@@ -389,7 +389,7 @@ const orbs = [];
 
 function orbSize(event) {
   const minutes = getEventDuration(event);
-  return 55 + Math.min(1, minutes / 240) * 50; // 55% to 105%
+  return 35 + Math.min(1, minutes / 240) * 35; // 35% to 70% of the cell
 }
 
 function startOrb(orb) {
@@ -466,8 +466,12 @@ async function openPlayScreen() {
         const size = orbSize(event);
         el.style.width = `${orbSize(event)}cqmin`;
         el.style.background = "#000";
-        el.style.boxShadow = eventRings(event, "cqmin", orbSize(event) * 0.1);
-        el.setAttribute("aria-label", event.name);
+        el.style.boxShadow = eventRings(
+          event,
+          "cqmin",
+          orbSize(event) * 0.15,
+          true,
+        );
         el.title = event.name;
 
         const label = document.createElement("span");
@@ -500,7 +504,26 @@ function closePlayScreen() {
 
 playCalendarButton.addEventListener("click", openPlayScreen);
 playBackButton.addEventListener("click", closePlayScreen);
-playScreen.addEventListener("pointermove", (e) =>
-  updateAura(e.clientX, e.clientY),
-);
+const BACK_ZONE = 70; // pixels around the Back button where the normal cursor returns
+
+function isNearBack(x, y) {
+  const rect = playBackButton.getBoundingClientRect();
+  return (
+    x > rect.left - BACK_ZONE &&
+    x < rect.right + BACK_ZONE &&
+    y > rect.top - BACK_ZONE &&
+    y < rect.bottom + BACK_ZONE
+  );
+}
+
+playScreen.addEventListener("pointermove", (e) => {
+  if (isNearBack(e.clientX, e.clientY)) {
+    aura.hidden = true;
+    stopAll();
+    playScreen.classList.add("near-back");
+  } else {
+    playScreen.classList.remove("near-back");
+    updateAura(e.clientX, e.clientY);
+  }
+});
 playScreen.addEventListener("pointerleave", stopAll);
