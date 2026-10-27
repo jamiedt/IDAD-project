@@ -1,0 +1,61 @@
+jamiedt,Tue Oct 27 10:01:37 2026 +1100,changed colours slightly,
+jamiedt,Mon Oct 26 17:14:33 2026 +1100,made font size and event stripes reactive to window size,
+jamiedt,Mon Oct 26 17:08:13 2026 +1100,changed calendar events to be easier to read,added the strok on the right instead of around the whole box
+
+jamiedt,Mon Oct 26 17:02:04 2026 +1100,added a zone to disable circle cursor near back button,
+jamiedt,Mon Oct 26 16:58:40 2026 +1100,changed stroke to outside the orb,
+jamiedt,Mon Oct 26 16:38:21 2026 +1100,changed the attributes tone.js interactions,
+jamiedt,Mon Oct 26 15:57:09 2026 +1100,changed colours to get stronger not change hue,the strokes now get bigger depending on how far the slider is rather than just changing colour
+
+jamiedt,Mon Oct 26 10:47:08 2026 +1100,changed gradient to a solid stroke border kinda like tibersynth,
+jamiedt,Thu Oct 22 17:29:26 2026 +1100,made orbas a bit smaller,
+jamiedt,Thu Oct 22 17:24:46 2026 +1100,changed spacing on play calendar,orbs are now centered and grow bigger again (were only getting longer before)
+
+jamiedt,Thu Oct 22 17:04:34 2026 +1100,made it so orbs dont morph,orbs with long names were morphine a lot
+
+jamiedt,Thu Oct 22 17:00:44 2026 +1100,changed styling for different screens and overflow,made it so that multiple events and events with long names dont stretch or break the calnedar and the calnder should morph with smaller and biggere screeens
+
+jamiedt,Thu Oct 22 16:49:53 2026 +1100,updated all the gradients and colours in events and play calendar mode,changed the gradients and the way they look to have less confusion while keeping readibiliuty
+
+jamiedt,Thu Oct 22 16:28:17 2026 +1100,changed grsadient colours to match,gradient colurs now match the slider colorurs
+
+jamiedt,Thu Oct 22 15:52:29 2026 +1100,changed slider functions,madce it so that when moving the sliders instead of having the split colour view the whole slider background changes
+
+jamiedt,Thu Oct 22 15:34:49 2026 +1100,testing some gradients,added gradients to events and to the orbs to see how they connected
+
+jamiedt,Wed Oct 7 15:33:24 2026 +1100,fixed light mode bug,changed variables for event colours
+
+jamiedt,Wed Oct 7 14:17:52 2026 +1100,Merge branch 'prototype-3',
+jamiedt,Fri Oct 2 15:13:44 2026 +1000,changed buttons to be hovered and the duration now makes circles bigger,instead of time its now size using duration and i have made a satisfying hover element
+
+jamiedt,Fri Oct 2 14:54:33 2026 +1000,instead of the calendar playing a tune a new screen now opens up with buttons,the buttons can be played with the same notes but now more like a soundboard sort of thing but they are in the shape of the calendar itself
+
+jamiedt,Fri Oct 2 14:16:43 2026 +1000,fixed bug where sound was playing forever,this was because of a NaN number that was making the release last forever
+
+jamiedt,Fri Oct 2 14:11:39 2026 +1000,added tone.js to create sounds out of the events,the events now play sound when the play button is pressed ALthouhg there are still bugs on tjhe spund playing indefinetly
+
+jamiedt,Fri Oct 2 13:49:03 2026 +1000,Update index.html,
+jamiedt,Fri Oct 2 13:48:23 2026 +1000,Update style.css,
+jamiedt,Fri Oct 2 13:46:07 2026 +1000,fixed bugs that wouldnt allow events to be created and got rid of the slider values,for some r4eason my protoypes were glitching and not saving properly so i fixed some bugs that were causing this to happen
+
+jamiedt,Thu Oct 1 17:35:52 2026 +1000,changed microcopy,got rid of the number label and changed labels and colours slightly
+
+jamiedt,Thu Oct 1 16:28:51 2026 +1000,changed colours and background of the even sliders,added gradients to the even tsliders to give more emoution and a better sense of feeling about them
+
+jamiedt,Thu Oct 1 15:39:09 2026 +1000,added a event creater with the help of ai,users can now create events in the calendar and can give times, dates, names and have slider options.
+
+jamiedt,Wed Sep 23 14:42:39 2026 +1000,commented out buttons,got rid of day weeek month buttons for now to limit scope
+
+jamiedt,Thu Sep 10 19:26:51 2026 +1000,fixed some styling,changed some styling decisions
+
+jamiedt,Wed Sep 9 15:59:37 2026 +1000,updated month names,
+jamiedt,Wed Sep 9 15:56:02 2026 +1000,Update style.css,
+jamiedt,Wed Sep 9 15:51:49 2026 +1000,fixed issue with merge,
+jamiedt,Wed Sep 9 15:50:32 2026 +1000,Merge branch 'main' of https://github.com/jamiedt/IDAD-project,
+jamiedt,Wed Sep 9 15:48:44 2026 +1000,added reset.css,added reset .css and experimenting with day week month buttons in calendar header
+
+jamiedt,Wed Sep 9 15:20:46 2026 +1000,created calendar,created simple calendar with the help of google ai as it gives me a good starting point to start iterating also added syntax and styling from the in class work we have been doing and copied it over with the dialogue etc.
+
+jamiedt,Wed Sep 9 15:20:46 2026 +1000,created calendar,created simple calendar with the help of google ai as it gives me a good starting point to start iterating
+
+jamiedt,Wed Sep 9 14:04:37 2026 +1000,Initial commit,
